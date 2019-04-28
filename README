@@ -1,0 +1,53 @@
+DEVELOPMENT/EXPERIMENTAL VERSION OF OZY <-> METIS PROTOCOL CONVERTER GATEWAY
+
+The protocol converter was conceived inside ghpsdr3-alex source tree in a new sub directory. With this version it
+has been extracted from the source tree and put into a single folder with a manually written makefile.
+
+The usb and start-up routines are lifted from ghpsdr3-alex with some small modifications,
+mainly around the I2C functionality.
+Thanks to John Melton, G0ORX/N6LYT for the open source ghpsdr-alex code.
+
+ozymetis is not presently integrated into ghpsdr3-alex but could be to give Metis functionality when
+the user only has an Ozy board. The same applies for other SDR hosts that only support Metis at present.
+
+For a Raspbian RPi2 user logged in as pi, wih the files extracted to a directory named ozymetis:-
+
+cd /home/pi/ozymetis/
+
+inside the ozymetis directory:
+
+There are two Makefiles Makefile.x86 and Makefile.rpi2 for each platform.
+
+
+The source code needs a tidy up, headers and defines re-arranging, build system etc.
+
+To build:
+	Needs usb libraries: libusb-1.0/- <exact detail to be added>
+
+	Raspberry Pi 2 - Install gcc-4.8: apt-get install gcc-4.8
+	X86 - nothing special
+
+	make -f Makefile.rpi2  or make -f Makefile.x86
+
+To use:
+
+As superuser, plug in Ozy to the Pi's USB and run ./ozymetis Wait a good 5 seconds after seeing the messages
+below before trying to discover the 'Metis' using PowerSDR or KISS etc
+
+sudo ./ozymetis
+
+	"Metis Listening for UDP datagrams on port 1024
+	ep6 bytes =0, badcount=0
+	ep4 bytes =0"
+
+Connect to the Rpi2 protocol converter gateway using PowerSDR or KISS etc as if you had a Metis board. 
+
+Note: WiFi discovery doesn't always seem to work. There are other known bugs, see listener.c
+
+
+	The system is written for one HPSDR with one Mercury and a single PC, but could easily be enhanced
+
+See the notes in listener.c (the main file doing the protocol conversion) for bugs and other comments. 
+
+Good luck!
+Bob Wisdom VK4YA May 2015

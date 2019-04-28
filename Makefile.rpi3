@@ -1,0 +1,54 @@
+CFLAGS = -O3 -pipe  -mfloat-abi=hard  -mcpu=cortex-a53  -mfpu=neon-fp-armv8   -fno-tree-vectorize -fopenmp -I/usr/include/libusb-1.0/ -I/usr/local/include/
+CC = gcc
+
+
+LD = /usr/bin/ld
+LDFLAGS = 
+LIBOBJS = 
+LIBS = -lortp -lsamplerate -levent_openssl -levent_pthreads -levent -lusb-1.0 -lconfig -ljack -lusb -lpulse -lpulse-simple -lcodec2 -lfftw3f -lportaudio -lm 
+LIBTOOL = $(SHELL) $(top_builddir)/libtool
+LIPO = 
+LN_S = ln -s
+LTLIBOBJS = 
+MKDIR_P = /bin/mkdir -p
+NM = /usr/bin/nm -B
+
+OBJDUMP = objdump
+OBJEXT = o
+SHELL = /bin/bash
+includedir = ${prefix}/include
+infodir = ${datarootdir}/info
+install_sh = ${SHELL} /home/pi/ghpsdr3-alex/install-sh
+libdir = ${exec_prefix}/lib
+libexecdir = ${exec_prefix}/libexec
+localedir = ${datarootdir}/locale
+localstatedir = ${prefix}/var
+
+
+DEPS = \
+    listener.c \
+    util.c \
+    ozy.c \
+    ozyio.c \
+    server.c \
+    hpsdr_usb.h \
+    ozy.h \
+    util.h \
+    buffer.h \
+    getopt.h \
+    listener.h \
+    ozyio.h \
+    semaphore.h
+
+OBJ = listener.o util.o ozy.o ozyio.o server.o  
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+ozymetis: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+	
+.PHONY: clean
+
+clean:
+	rm -f $(ODIR)/*.o
