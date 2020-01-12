@@ -204,8 +204,10 @@ void *listener_thread(void *arg)
   int on = 1;
   int buf_flag = 0, usbtxbytes = 0;
   unsigned char micboost = 0x55;
+  unsigned char srcaddr[] = "255.255.255.255";
+  unsigned short srcport = 1024;
 
-  fprintf(stderr, "Starting main listener thread\n");
+  fprintf(stderr, "Starting main listener thread v1.1\n");
 
   if (pthread_mutex_init(&lock, NULL)) {
     printf("Unable to initialize lock mutex\n");
@@ -250,6 +252,14 @@ void *listener_thread(void *arg)
     }
     //        fprintf(stderr,"Metis read %d bytes, %02x:%02x:%02x:%02x\n",bytes_read,
     //                  cmd_buffer[0],cmd_buffer[1],cmd_buffer[2],cmd_buffer[3]);           
+
+    strcpy(srcaddr,inet_ntoa(address.sin_addr));
+ //   fprintf(stderr,"Src Address=%s\n",srcaddr); //  (void*)&addr,sizeof(addr)
+
+    srcport = ntohs(address.sin_port);
+//    fprintf(stderr,"Src Port=%d\n",srcport);
+
+newtry:
     if ((bytes_read == 63) && (cmd_buffer[0] == 0xEF && // discovery received
                                cmd_buffer[1] == 0xFE && cmd_buffer[2] == 0x02 && cmd_buffer[3] == 0x00)) {
       fprintf(stderr, "Metis Received discovery UDP\n");
@@ -258,7 +268,7 @@ void *listener_thread(void *arg)
       started_wband = 0;        // Kludge
       started_iq = 0;           // Kludge
       metis_sending = 0;        // Kludge
-      // send the discovery reply
+// send the discovery reply
 
       disco_rply_buffer[0] = 0xEF;
       disco_rply_buffer[1] = 0xFE;
@@ -275,6 +285,12 @@ void *listener_thread(void *arg)
       for (i = 11; i < 60; i++) {
         disco_rply_buffer[i] = 0x00;
       }
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = inet_addr(srcaddr);
+//  address.sin_port = htons(PORT);
+  address.sin_port = htons(srcport);
+
+      
       if (sendto(s, disco_rply_buffer, 60, 0, (struct sockaddr *)&address, length) < 0) {
         perror("sendto socket failed for metis_send_data discovery reply\n");
         exit(1);
@@ -369,10 +385,12 @@ void *listener_thread(void *arg)
           // unrecognised packet     
         }
       }
-    } else
+    } else {
       fprintf(stderr, "Metis expecting packet but got %02x:%02x:%02x:%02x,%02x:%02x:%02x:%02x\n",
               cmd_buffer[0], cmd_buffer[1], cmd_buffer[2], cmd_buffer[3],
               cmd_buffer[4], cmd_buffer[5], cmd_buffer[6], cmd_buffer[7]);
+	//goto newtry;
+    }
   }                             // end while
   exit(0);
 }
